@@ -7,6 +7,41 @@
 (function(arukar) {
     "use strict";
 
+    var makePlayer = function(x, y, size) {
+        return {
+            last: new Date().getTime(),
+            x: x, y: y, dx: 0, dy: 0, speed: 0.5,
+            update: function(state, now) {
+                this.x += this.dx * (now - this.last);
+                if (this.x < 0) {
+                    this.x = 0;
+                    this.dx = -this.dx;
+                } else if (this.x > state.width) {
+                    this.x -= this.x - state.width;
+                    this.dx = -this.dx;
+                }
+                this.y += this.dy * (now - this.last);
+                if (this.y < 0) {
+                    this.y = 0;
+                    this.dy = -this.dy;
+                } else if (this.y > state.height) {
+                    this.y = state.height;
+                    this.dy = -this.dy;
+                }
+                this.last = now;
+            },
+            draw: function(state, ctx) {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, state.width / 50,
+                        0, Math.PI * 2);
+                ctx.fillStyle = 'orangered';
+                ctx.fill();
+                ctx.strokeStyle = 'orange';
+                ctx.stroke();
+            }
+        };
+    };
+
     var makeGuard = function(x, y, size) {
 		var speed = 0.5;
         return {
@@ -40,7 +75,6 @@
                 ctx.fill();
                 ctx.strokeStyle = 'blue';
                 ctx.stroke();
-                console.log('boo');
             }
         };
     };
@@ -57,8 +91,10 @@
            height: 320, width: 320,
            characters: []
         };
+		var player = makePlayer(60, 60, 30);
         state.characters.push(makeGuard(25, 25, 30));
         state.characters.push(makeGuard(225, 225, 30));
+		state.characters.push(player);
 
         var draw_id = 0;
         var draw = function() {
@@ -115,7 +151,25 @@
         });
         board.resize(resize);
         resize();
-		console.log("Simon is very silly")
+\	
+		viewport.on('keydown', function(event) {
+			if (event.keyCode == 37 || event.keyCode == 65) {
+				player.dx = -player.speed;
+				player.dy = 0;
+			} else if (event.keyCode == 38 || event.keyCode == 87) {
+				player.dx = 0;
+				player.dy = -player.speed;
+			} else if (event.keyCode == 39 || event.keyCode == 68) {
+				player.dx = player.speed;
+				player.dy = 0;
+			} else if (event.keyCode == 40 || event.keyCode == 83) {
+				player.dx = 0;
+				player.dy = player.speed;
+			}
+		});
+		viewport.on('keyup', function(event) {
+			player.dx = player.dy = 0;
+		});
 
     }
 })(typeof exports === 'undefined'? this['arukar'] = {}: exports);
