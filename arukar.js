@@ -115,6 +115,7 @@
         });
         board.resize(resize);
         resize();
+		console.log("Simon is very silly")
 
     }
 })(typeof exports === 'undefined'? this['arukar'] = {}: exports);
